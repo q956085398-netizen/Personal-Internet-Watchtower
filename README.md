@@ -442,6 +442,7 @@ metrics
 
 - [v0 Spec](docs/SPEC.md)：可直接用于实现与验收的产品 / 工程规范；
 - [Tickets & Blocking Map](docs/TICKETS.md)：GitHub Issues 索引、依赖关系与关键路径；
+- [UI Design Rules](docs/UI_DESIGN.md)：近决定版的信息架构、视觉原则、组件约束与 UI 审查清单；
 - [v0 MVP Epic](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/1)：当前 MVP 总任务。
 
 当前阶段建议先并行解决 Phase 0 blockers，再进入 Core 与 Connector 实现。
