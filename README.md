@@ -432,3 +432,16 @@ metrics
 当前仍处于产品边界与可行性验证阶段。
 
 欢迎先从讨论需求、数据源能力和 Connector 设计开始。
+
+
+---
+
+## 开发入口
+
+如果准备开始实现，优先从下面三处进入：
+
+- [v0 Spec](docs/SPEC.md)：可直接用于实现与验收的产品 / 工程规范；
+- [Tickets & Blocking Map](docs/TICKETS.md)：GitHub Issues 索引、依赖关系与关键路径；
+- [v0 MVP Epic](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/1)：当前 MVP 总任务。
+
+当前阶段建议先并行解决 Phase 0 blockers，再进入 Core 与 Connector 实现。
