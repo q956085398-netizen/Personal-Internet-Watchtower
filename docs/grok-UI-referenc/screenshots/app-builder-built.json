@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "瞭望塔",
+      "hasCanvas": false,
+      "bodyTextLen": 1409,
+      "bodyTextHash": "23929ae01a80198933f52110b47642a1b832973c8f589aa9427854ebaba2480d",
+      "bodyTextPrefix": "瞭望塔 WATCHTOWER 替你去你常去的地方看一眼。有事再进来，没事就关掉。 上次巡逻 刚刚 6 处正在看 · 1 处暂停 ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "瞭望塔",
+      "hasCanvas": false,
+      "bodyTextLen": 1143,
+      "bodyTextHash": "e5f8b4c6be6529a54d8285a358336448011e762a4f16e709282ef139d9b1cf83",
+      "bodyTextPrefix": "瞭望塔 刚刚 本次快照 有限，有尽头。 只回答一件事：你平时会看的这几个地方，现在有没有值得点进去的东西。 真正发生在你身上的事",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}
