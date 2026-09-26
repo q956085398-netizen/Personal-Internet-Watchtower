@@ -46,7 +46,8 @@ export interface Watchpoint {
 
 /**
  * Per-watchpoint runtime state (ADR-0001 §2/§3): the opaque poll watermark
- * returned by the last successful poll, plus last success / last error.
+ * returned by the last successful poll, plus last success / last error and
+ * the scheduler's next-due decision.
  */
 export interface WatchpointState {
   watchpointId: string;
@@ -57,6 +58,13 @@ export interface WatchpointState {
   lastErrorReason: PollFailureReason | null;
   lastErrorMessage: string | null;
   consecutiveFailures: number;
+  /**
+   * When the scheduler will next attempt this watchpoint (issue #10).
+   * Null means no scheduling decision is recorded — never attempted, a
+   * legacy row, or cleared by a terminal failure; automatic scheduling
+   * reads it as due immediately, with the terminal-failure gate deciding.
+   */
+  nextDueAt: string | null;
 }
 
 /** Normalized event, mirroring ADR-0001 §4. */

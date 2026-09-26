@@ -107,7 +107,21 @@ const V1: Migration = {
   ],
 };
 
-export const migrations: readonly Migration[] = [V1];
+/**
+ * V2 (issue #10): the scheduler's next-due timestamp is runtime state, so it
+ * lives in watchpoint_state (ADR-0001 §2), not in the watchpoint config.
+ * NULL means "no scheduling decision recorded" (never attempted, a legacy
+ * row, a caller that did not decide scheduling, or cleared by a terminal
+ * failure) and reads as due immediately — the terminal-failure gate is what
+ * keeps such watchpoints from polling.
+ */
+const V2: Migration = {
+  version: 2,
+  name: "scheduler-next-due",
+  up: ["ALTER TABLE watchpoint_state ADD COLUMN next_due_at TEXT"],
+};
+
+export const migrations: readonly Migration[] = [V1, V2];
 
 export function migrate(db: DatabaseSync): void {
   db.exec(`CREATE TABLE IF NOT EXISTS schema_migrations (

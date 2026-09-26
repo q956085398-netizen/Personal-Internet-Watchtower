@@ -118,6 +118,84 @@ test("failure reasons are a closed enum", () => {
   });
 });
 
+test("recordSuccess / recordFailure persist the scheduler's next due time (issue #10)", () => {
+  withStore((store) => {
+    const id = makeWatchpoint(store);
+    store.pollState.recordFailure(id, {
+      reason: "rate_limited",
+      message: "429",
+      at: "2026-09-26T01:00:00.000Z",
+      nextDueAt: "2026-09-26T02:00:00.000Z",
+    });
+    assert.equal(store.pollState.get(id)?.nextDueAt, "2026-09-26T02:00:00.000Z");
+
+    store.pollState.recordSuccess(id, {
+      state: "w",
+      at: "2026-09-26T02:00:00.000Z",
+      nextDueAt: "2026-09-26T02:10:00.000Z",
+    });
+    assert.equal(store.pollState.get(id)?.nextDueAt, "2026-09-26T02:10:00.000Z");
+  });
+});
+
+test("omitting nextDueAt preserves the previously scheduled due time", () => {
+  withStore((store) => {
+    const id = makeWatchpoint(store);
+    store.pollState.recordFailure(id, {
+      reason: "temporary_failure",
+      message: "x",
+      at: "2026-09-26T01:00:00.000Z",
+      nextDueAt: "2026-09-26T01:30:00.000Z",
+    });
+    store.pollState.recordFailure(id, {
+      reason: "temporary_failure",
+      message: "y",
+      at: "2026-09-26T01:10:00.000Z",
+    });
+    assert.equal(
+      store.pollState.get(id)?.nextDueAt,
+      "2026-09-26T01:30:00.000Z",
+      "callers that do not decide scheduling must not clobber it",
+    );
+  });
+});
+
+test("an explicit null nextDueAt clears the scheduled due time", () => {
+  withStore((store) => {
+    const id = makeWatchpoint(store);
+    store.pollState.recordFailure(id, {
+      reason: "temporary_failure",
+      message: "x",
+      at: "2026-09-26T01:00:00.000Z",
+      nextDueAt: "2026-09-26T01:30:00.000Z",
+    });
+    store.pollState.recordFailure(id, {
+      reason: "auth_error",
+      message: "Cookie 过期",
+      at: "2026-09-26T01:10:00.000Z",
+      nextDueAt: null,
+    });
+    assert.equal(
+      store.pollState.get(id)?.nextDueAt,
+      null,
+      "a terminal failure un-schedules the watchpoint",
+    );
+  });
+});
+
+test("nextDueAt must be an ISO 8601 datetime when provided", () => {
+  withStore((store) => {
+    const id = makeWatchpoint(store);
+    assert.throws(() =>
+      store.pollState.recordSuccess(id, {
+        state: null,
+        at: "2026-09-26T01:00:00.000Z",
+        nextDueAt: "tomorrow",
+      }),
+    );
+  });
+});
+
 test("recording state for an unknown watchpoint is rejected", () => {
   withStore((store) => {
     assert.throws(() =>

@@ -110,6 +110,7 @@ test("watchpoint config and runtime state live in separate tables (ADR-0001 §2)
     "last_error_reason",
     "last_error_message",
     "consecutive_failures",
+    "next_due_at",
   ]) {
     assert.ok(
       !wpCols.includes(runtimeCol),
