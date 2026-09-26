@@ -12,7 +12,7 @@
 - [#4 NGA feasibility](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/4)
 - [#5 Bilibili feasibility](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/5)
 - [#6 龙空 feasibility](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/6)
-- [#8 Dashboard foundation: Glance vs custom UI](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/8)
+- [#8 Dashboard foundation decision](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/8) — **resolved: lightweight custom UI, Grok reference baseline**
 
 ## Phase 1 — Core
 
@@ -37,7 +37,7 @@
 - [#15 Watchpoint add / pause / resume / remove](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/15)  
   **Blocked by:** #2, #9, #10; site options depend on #12/#13/#14
 - [#16 Finite Dashboard](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/16)  
-  **Blocked by:** #8, #11; needs fixtures or implementations from #12/#13/#14
+  **Blocked by:** #11; uses resolved UI baseline from #8 and needs fixtures or implementations from #12/#13/#14
 
 ## MVP Gate
 
@@ -69,7 +69,7 @@
 #5 Bili spike ->#13 Bilibili --------------+
 #6 LK spike --->#14 龙空 -------------------+
                                              \
-#8 UI spike --------------------------------->#16
+#8 UI baseline (resolved) -------------------->#16
 
 #2 + #9 + #10 + Connectors -----------------> #15 Watchpoint UX
 
@@ -123,3 +123,13 @@
 - [#1 v0 MVP Epic](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/1)
 
 > #7 是创建过程中产生的重复 Epic，已作为 duplicate 关闭。
+
+
+## UI classification guardrails
+
+For tickets touching presentation or normalized events:
+
+- “和我有关” = 回复我 / 点赞我 / @我 only.
+- “关注更新” = explicit watchpoint updates, including followed UP uploads and followed livestreams.
+- “值得看看” = bounded, explainable surfacing inside existing sources.
+- Do not add permanent product-philosophy or end-of-feed copy to the dashboard.
