@@ -18,8 +18,7 @@
 
 - [#9 SQLite persistence](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/9) — **resolved: `src/persistence/` on Node 内置 `node:sqlite`，schema 落 ADR-0001，56 tests**
 - [#10 Scheduler / Connector runner](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/10) — **resolved: 契约 TS 绑定 `src/contract.ts`，注册表 `src/registry.ts`，调度器 `src/scheduler/`（策略纯函数 + 重入防护 + 超时/退避 + next_due_at 持久化），106 tests**
-- [#11 Event normalization / dedup / bounded filtering](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/11)  
-  **Blocked by:** #2, #9
+- [#11 Event normalization / dedup / bounded filtering](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/11) — **resolved: 分区推导 + feed 查询 `src/persistence/feed.ts`（about_me / following / worth 读时推导，相关性优先 + 硬性 limit 50/200），upsert 部分观察不擦除可选字段，123 tests**
 
 ## Phase 1 — Initial Connectors
 
