@@ -267,11 +267,13 @@ Dashboard 只关心统一事件。
 - 某站点 Cookie 怎么配；
 - 哪条 API 返回哪些字段。
 
-当前可以评估 Glance 是否适合作为首版 UI 基础。
+当前已选择**轻量自定义 Dashboard**作为 v0 UI 方向，视觉和交互基准见：
 
-如果 Glance 对交互限制过大，再开发自己的轻量 Dashboard。
+`docs/grok-UI-referenc/`
 
-无论最终选择什么 UI，都应保留：
+Dashboard 的职责只包含统一事件展示、有限分区、瞭望点管理与跳转原站。它不应该承担采集逻辑。
+
+仍需保留以下边界：
 
 > Dashboard 可以替换，Connector 和数据层不被绑死。
 
