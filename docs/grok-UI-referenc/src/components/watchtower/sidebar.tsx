@@ -71,7 +71,7 @@ export function Sidebar({
             {errors.length} 处检查失败，其余不受影响
           </p>
         ) : (
-          <p className="mt-2 text-sm text-clear">各处海面可见</p>
+          <p className="mt-2 text-sm text-clear">状态正常</p>
         )}
         <Button
           className="mt-4 w-full"
