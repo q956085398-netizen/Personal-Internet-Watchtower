@@ -44,7 +44,7 @@ export function AppShell() {
 
   async function onPatrol() {
     await store.patrol();
-    toast("巡逻完成", { description: "没有更多页。这就是当前快照。" });
+    toast("巡逻完成");
   }
 
   return (
