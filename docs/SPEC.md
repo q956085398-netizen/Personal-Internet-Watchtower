@@ -76,9 +76,9 @@ This must not create new external sources.
 
 ### R3 — The dashboard has an end
 
-No endless feed. The dashboard must return a bounded number of cards and be able to reach:
+No endless feed. The dashboard must return bounded results and stop naturally.
 
-> 暂时没有值得你看的新东西。
+When there is nothing new, use a minimal empty state. Do not use persistent philosophy/slogan/end-of-feed copy to explain this principle.
 
 ### R4 — Clicking leaves Watchtower
 
@@ -197,9 +197,9 @@ Target:
 
 ## 7. Dashboard Behavior
 
-The dashboard is intentionally small.
+The dashboard is intentionally small and follows the current UI baseline in `docs/grok-UI-referenc/`.
 
-Suggested sections:
+### 7.1 Fixed information architecture
 
 ```text
 和我有关
@@ -207,16 +207,54 @@ Suggested sections:
 值得看看
 ```
 
-Rules:
+**和我有关** contains only direct account interactions:
+
+- reply to me;
+- like on my content;
+- @mention.
+
+It must **not** contain followed livestreams, followed creator uploads, forum latest/hot threads, or discovery items.
+
+**关注更新** contains changes from explicit watchpoints:
+
+- concrete forum threads from boards the user watches;
+- followed creator uploads;
+- followed streamer live status;
+- other explicit subscription/watchpoint updates.
+
+**值得看看** contains bounded, explainable surfacing inside already-added sources:
+
+- a specific thread whose reply activity is accelerating;
+- a specific Bilibili video matching an explicitly enabled local tag/rule;
+- similar source-local discovery.
+
+### 7.2 Content presentation
+
+Do not replace concrete content with vague summaries.
+
+For forum content, show individual thread title + reply count.  
+For video content, show the actual title and thumbnail when available.  
+For live content, show the actual streamer/live title and live status.
+
+Examples of content to avoid:
+
+- “出现 3 个热帖”
+- “有一个帖子热度上升”
+- “AI 相关视频正在快速增长”
+
+Instead, list the actual candidate items that caused those signals.
+
+### 7.3 Visual behavior
 
 - bounded card counts;
-- no infinite scroll;
-- every card has a clear source and reason;
+- no infinite scroll or next page;
 - every actionable card links to the original site;
-- empty state is first-class;
+- source/status/reason stay concise;
+- no persistent product-philosophy copy in header/sidebar/footer;
+- empty state is minimal;
 - one broken Connector must not break the whole page.
 
-Exact layout may change after the UI-foundation spike.
+The design rules in `docs/UI_DESIGN.md` and the current Grok reference override older mockups.
 
 ## 8. Watchpoint Management
 
@@ -338,22 +376,15 @@ Need to validate:
 
 **Unblocks:** 龙空 Connector implementation.
 
-### B4 — UI foundation
+### B4 — UI foundation — resolved
 
-Need a short implementation spike comparing:
+Decision: use a lightweight custom UI. The current runnable reference lives in:
 
-- Glance as the first dashboard shell;
-- a minimal custom web UI.
+`docs/grok-UI-referenc/`
 
-Decision criteria:
+The reference establishes layout, typography, color/surface direction, watchpoint controls, and card language. `docs/UI_DESIGN.md` records the intentional deviations and hard information-architecture rules.
 
-- finite sections/cards;
-- watchpoint add/pause/remove flow;
-- per-Connector error state;
-- direct-link behavior;
-- implementation/maintenance cost.
-
-**Unblocks:** Dashboard implementation.
+This is no longer an implementation blocker.
 
 ### B5 — Connector contract
 
@@ -373,7 +404,9 @@ The MVP is considered usable when:
 6. One Connector failure does not break the rest of the dashboard.
 7. Credentials are not stored in the repository or exposed unnecessarily to the browser.
 8. The page can legitimately show “nothing worth checking right now.”
-9. The user can use Watchtower for a trial period and reduce routine “just checking” visits to the original apps.
+9. “和我有关” contains only direct interactions; followed uploads/live events appear under “关注更新”.
+10. Forum/video/live cards expose concrete candidate content rather than only aggregate summaries.
+11. The user can use Watchtower for a trial period and reduce routine “just checking” visits to the original apps.
 
 ## 15. Deferred Experiment — Bilibili Local Discovery
 
