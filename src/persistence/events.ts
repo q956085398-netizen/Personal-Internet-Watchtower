@@ -23,13 +23,17 @@ import {
  * so a caller-supplied connector mismatch is structurally impossible — the
  * stricter form of ADR-0001's "Connector 填 metadata.id，Core 校验一致".
  *
- * Upsert semantics (deliberate, revisit with #11): the dedup key collapses
- * re-observations of the same item onto one row. On a dedup hit the row's
- * content and `discovered_at` are refreshed to the latest observation, so a
+ * Upsert semantics (#11): the dedup key collapses re-observations of the
+ * same item onto one row. On a dedup hit, the required fields (title, url,
+ * reason) and `discovered_at` refresh to the latest observation, so a
  * still-hot thread stays near the top of the bounded feed instead of sinking
- * by its first-discovery time. The original discovery moment survives in
- * `dedup_keys.first_seen_at`. Long-lived dedup state lives in `dedup_keys`,
- * so event retention can later prune `events` without losing dedup history.
+ * by its first-discovery time; the original discovery moment survives in
+ * `dedup_keys.first_seen_at`. Optional fields (summary, author,
+ * published_at, thumbnail_url, metrics, metadata) are last-write-wins per
+ * observation: a re-poll that omits them preserves what was stored before,
+ * so a partial observation updates an item without erasing it. Long-lived
+ * dedup state lives in `dedup_keys`, so event retention can later prune
+ * `events` without losing dedup history.
  */
 
 /** Connector-supplied event before Core assigns identity. */
@@ -136,10 +140,17 @@ export function createEventsRepo(db: DatabaseSync) {
        thumbnail_url, metrics, metadata
      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   );
+  // COALESCE keeps a previously stored value when a re-poll omits the
+  // optional field (undefined → null), so partial observations never erase.
   const updateEvent = db.prepare(
     `UPDATE events SET
-       discovered_at = ?, title = ?, url = ?, reason = ?, summary = ?,
-       author = ?, published_at = ?, thumbnail_url = ?, metrics = ?, metadata = ?
+       discovered_at = ?, title = ?, url = ?, reason = ?,
+       summary = COALESCE(?, summary),
+       author = COALESCE(?, author),
+       published_at = COALESCE(?, published_at),
+       thumbnail_url = COALESCE(?, thumbnail_url),
+       metrics = COALESCE(?, metrics),
+       metadata = COALESCE(?, metadata)
      WHERE id = ?`,
   );
   const insertDedupKey = db.prepare(

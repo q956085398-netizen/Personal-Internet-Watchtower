@@ -174,6 +174,35 @@ test("metric growth updates the original item instead of adding a card", () => {
   });
 });
 
+test("a partial re-observation preserves the optional fields it does not supply", () => {
+  withStore((store) => {
+    const up = addWatchpoint(store, "bilibili", "following_updates");
+    const base = {
+      eventType: "new_item" as const,
+      discoveredAt: "2026-09-26T02:00:00.000Z",
+      title: "新视频",
+      url: "https://www.bilibili.com/video/BV1xx411c7mD",
+      reason: "你关注的 UP 更新了",
+      externalId: "BV1xx411c7mD",
+    };
+    store.events.upsert(up, [{
+      ...base,
+      author: "某UP主",
+      publishedAt: "2026-09-26T01:30:00.000Z",
+      summary: "视频简介",
+      metrics: { view: 100 },
+      metadata: { duration: 300 },
+    }]);
+    const [refreshed] = store.events.upsert(up, [{ ...base, metrics: { view: 900 } }]).records;
+
+    assert.equal(refreshed?.author, "某UP主");
+    assert.equal(refreshed?.publishedAt, "2026-09-26T01:30:00.000Z", "omitted optional fields survive the update");
+    assert.equal(refreshed?.summary, "视频简介");
+    assert.deepEqual(refreshed?.metadata, { duration: 300 });
+    assert.deepEqual(refreshed?.metrics, { view: 900 }, "observed fields still update");
+  });
+});
+
 test("a still-live re-observation updates the original card; live_ended opens a new one", () => {
   withStore((store) => {
     const live = addWatchpoint(store, "bilibili", "live_status");
