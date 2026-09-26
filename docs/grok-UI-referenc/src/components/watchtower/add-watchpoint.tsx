@@ -36,9 +36,7 @@ export function AddWatchpoint({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>最近也开始逛这个地方？</DialogTitle>
-          <DialogDescription>
-            只加入你自己会去检查的站点。系统不会替你扩大世界。
-          </DialogDescription>
+          <DialogDescription>选择一个要加入的瞭望点。</DialogDescription>
         </DialogHeader>
         <ul className="mt-5 flex flex-col gap-2">
           {ADDABLE_TEMPLATES.map((t) => {
