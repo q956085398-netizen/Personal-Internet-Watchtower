@@ -25,3 +25,17 @@ If this prototype conflicts with those documents, the documents win.
 This is a UI reference, not the production application architecture. Grok/App Builder workspace metadata, generated deployment output, project IDs, preview logs, and generator skills are intentionally excluded.
 
 Do not add permanent manifesto/slogan/end-of-feed copy to the main dashboard.
+
+
+## Provider-specific runtime support
+
+Some Grok/App Builder support code is still kept only so the reference remains runnable, for example parts of:
+
+- `src/lib/auth/`
+- `src/lib/app-data/`
+- `migrations/`
+- `server/`
+- `public/__grok/`
+- build/startup scripts
+
+Treat these as **reference-environment scaffolding**, not as requirements for the production Watchtower architecture. Do not copy them into Core unless an actual product requirement independently justifies them.
