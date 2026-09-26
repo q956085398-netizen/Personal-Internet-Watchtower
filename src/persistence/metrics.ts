@@ -1,6 +1,11 @@
 import type { DatabaseSync } from "node:sqlite";
 import type { MetricKey, MetricSnapshot } from "./types.ts";
-import { assertEnum, assertIsoDatetime, METRIC_KEYS } from "./validation.ts";
+import {
+  assertBoundedLimit,
+  assertIsoDatetime,
+  METRIC_KEYS,
+  normalizeMetrics,
+} from "./validation.ts";
 
 /**
  * Metric snapshots (SPEC §5.4): short-term observations of an item's metrics
@@ -9,6 +14,10 @@ import { assertEnum, assertIsoDatetime, METRIC_KEYS } from "./validation.ts";
  */
 
 export interface ListSnapshotsFilter {
+  /** Only snapshots captured at or after this ISO 8601 moment. */
+  since?: string;
+  /** Only snapshots captured at or before this ISO 8601 moment. */
+  until?: string;
   /** Default 100, ordered chronologically (oldest first). */
   limit?: number;
 }
@@ -48,9 +57,6 @@ export function createMetricsRepo(db: DatabaseSync) {
     `INSERT INTO metric_snapshots (event_id, captured_at, view, "like", favorite, coin, reply, share, danmaku)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   );
-  const selectByEvent = db.prepare(
-    "SELECT * FROM metric_snapshots WHERE event_id = ? ORDER BY captured_at DESC, id DESC LIMIT ?",
-  );
 
   return {
     /** Records one observation. `capturedAt` defaults to now. */
@@ -67,12 +73,10 @@ export function createMetricsRepo(db: DatabaseSync) {
       if (entries.length === 0) {
         throw new TypeError("metrics must contain at least one key");
       }
+      // normalizeMetrics enforces the closed key enum and finite numbers.
+      normalizeMetrics(metrics);
       const columns: (number | null)[] = METRIC_KEYS.map(() => null);
       for (const [key, value] of entries) {
-        assertEnum(key, METRIC_KEYS, `metrics key "${key}"`);
-        if (typeof value !== "number" || !Number.isFinite(value)) {
-          throw new TypeError(`metrics.${key} must be a finite number`);
-        }
         columns[METRIC_KEYS.indexOf(key as MetricKey)] = value;
       }
       const result = insert.run(eventId, capturedAt, ...columns);
@@ -86,14 +90,28 @@ export function createMetricsRepo(db: DatabaseSync) {
 
     /** Time series for one item, chronologically ordered, bounded to the latest window. */
     list(eventId: string, filter: ListSnapshotsFilter = {}): MetricSnapshot[] {
+      const conditions: string[] = ["event_id = ?"];
+      const args: (string | number)[] = [eventId];
+      if (filter.since !== undefined) {
+        assertIsoDatetime(filter.since, "since");
+        conditions.push("captured_at >= ?");
+        args.push(filter.since);
+      }
+      if (filter.until !== undefined) {
+        assertIsoDatetime(filter.until, "until");
+        conditions.push("captured_at <= ?");
+        args.push(filter.until);
+      }
       let limit = DEFAULT_SNAPSHOT_LIMIT;
       if (filter.limit !== undefined) {
-        if (!Number.isInteger(filter.limit) || filter.limit <= 0) {
-          throw new TypeError("limit must be a positive integer");
-        }
-        limit = Math.min(filter.limit, MAX_SNAPSHOT_LIMIT);
+        limit = assertBoundedLimit(filter.limit, MAX_SNAPSHOT_LIMIT);
       }
-      const rows = selectByEvent.all(eventId, limit) as unknown as SnapshotRow[];
+      const rows = db
+        .prepare(
+          `SELECT * FROM metric_snapshots WHERE ${conditions.join(" AND ")}
+           ORDER BY captured_at DESC, id DESC LIMIT ${limit}`,
+        )
+        .all(...args) as unknown as SnapshotRow[];
       return rows.reverse().map(rowToSnapshot);
     },
   };

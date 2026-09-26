@@ -114,6 +114,27 @@ test("deleting the watchpoint cascades events and their snapshots", () => {
   });
 });
 
+test("snapshots are queryable by item and time window", () => {
+  withStore((store) => {
+    const { eventId } = seedEvent(store);
+    store.metrics.add(eventId, { view: 100 }, "2026-09-26T01:00:00.000Z");
+    store.metrics.add(eventId, { view: 180 }, "2026-09-26T01:05:00.000Z");
+    store.metrics.add(eventId, { view: 260 }, "2026-09-26T01:15:00.000Z");
+
+    assert.deepEqual(
+      store.metrics
+        .list(eventId, { since: "2026-09-26T01:05:00.000Z", until: "2026-09-26T01:10:00.000Z" })
+        .map((s) => s.metrics.view),
+      [180],
+    );
+    assert.deepEqual(
+      store.metrics.list(eventId, { since: "2026-09-26T01:05:00.000Z" }).map((s) => s.metrics.view),
+      [180, 260],
+    );
+    assert.throws(() => store.metrics.list(eventId, { since: "yesterday" }));
+  });
+});
+
 test("empty metrics are rejected at the repo boundary", () => {
   withStore((store) => {
     const { eventId } = seedEvent(store);

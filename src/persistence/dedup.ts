@@ -40,6 +40,9 @@ export interface DedupKey {
 }
 
 export function buildDedupKey(parts: DedupKeyParts): DedupKey {
+  // The key is a JSON array so every component (including ids that contain
+  // separator-like characters) round-trips unambiguously. The 4th/5th slots
+  // mark the URL-hash fallback: [wp, type, null, "url_hash", sha256].
   if (parts.externalId !== null) {
     return { key: JSON.stringify([parts.watchpointId, parts.eventType, parts.externalId]), fallback: null };
   }

@@ -2,7 +2,10 @@ import { randomUUID } from "node:crypto";
 import type { DatabaseSync } from "node:sqlite";
 import { buildDedupKey } from "./dedup.ts";
 import type { EventRecord, EventType, MetricKey } from "./types.ts";
+import { requireWatchpointRow } from "./watchpoints.ts";
+import { withTransaction } from "./tx.ts";
 import {
+  assertBoundedLimit,
   assertEnum,
   assertHttpUrl,
   assertIsoDatetime,
@@ -10,17 +13,23 @@ import {
   assertNonEmptyString,
   EVENT_TYPES,
   METADATA_MAX_BYTES,
-  METRIC_KEYS,
+  normalizeMetrics,
 } from "./validation.ts";
 
 /**
- * Normalized event storage (ADR-0001 §4). Core assigns ids and stamps
- * `connector_id` from the Watchpoint; upserts key on the dedup key built from
- * `(watchpoint_id, event_type, external_id)` with a normalized-URL hash
- * fallback. Long-lived dedup state lives in `dedup_keys`, so re-observed
- * items update the existing event row (refreshing content and
- * `discovered_at`) instead of duplicating it; the original discovery time
- * stays available as `dedup_keys.first_seen_at`.
+ * Normalized event storage (ADR-0001 §4).
+ *
+ * Identity: Core assigns `id` and derives `connector_id` from the Watchpoint,
+ * so a caller-supplied connector mismatch is structurally impossible — the
+ * stricter form of ADR-0001's "Connector 填 metadata.id，Core 校验一致".
+ *
+ * Upsert semantics (deliberate, revisit with #11): the dedup key collapses
+ * re-observations of the same item onto one row. On a dedup hit the row's
+ * content and `discovered_at` are refreshed to the latest observation, so a
+ * still-hot thread stays near the top of the bounded feed instead of sinking
+ * by its first-discovery time. The original discovery moment survives in
+ * `dedup_keys.first_seen_at`. Long-lived dedup state lives in `dedup_keys`,
+ * so event retention can later prune `events` without losing dedup history.
  */
 
 /** Connector-supplied event before Core assigns identity. */
@@ -101,19 +110,6 @@ function rowToEvent(row: EventRow): EventRecord {
   };
 }
 
-function assertMetrics(metrics: Partial<Record<MetricKey, number>> | undefined): string | null {
-  if (metrics === undefined) return null;
-  const cleaned: Partial<Record<MetricKey, number>> = {};
-  for (const [key, value] of Object.entries(metrics)) {
-    assertEnum(key, METRIC_KEYS, `metrics key "${key}"`);
-    if (typeof value !== "number" || !Number.isFinite(value)) {
-      throw new TypeError(`metrics.${key} must be a finite number`);
-    }
-    cleaned[key as MetricKey] = value;
-  }
-  return Object.keys(cleaned).length === 0 ? null : JSON.stringify(cleaned);
-}
-
 function assertEventInput(input: EventInput): void {
   assertEnum(input.eventType, EVENT_TYPES, "eventType");
   assertIsoDatetime(input.discoveredAt, "discoveredAt");
@@ -130,13 +126,7 @@ function assertEventInput(input: EventInput): void {
   }
 }
 
-interface WatchpointRefRow {
-  id: string;
-  connector_id: string;
-}
-
 export function createEventsRepo(db: DatabaseSync) {
-  const selectWatchpoint = db.prepare("SELECT id, connector_id FROM watchpoints WHERE id = ?");
   const selectEventIdByDedupKey = db.prepare("SELECT id FROM events WHERE dedup_key = ?");
   const insertEvent = db.prepare(
     `INSERT INTO events (
@@ -184,10 +174,7 @@ export function createEventsRepo(db: DatabaseSync) {
       }
       let limit = DEFAULT_EVENT_LIMIT;
       if (filter.limit !== undefined) {
-        if (!Number.isInteger(filter.limit) || filter.limit <= 0) {
-          throw new TypeError("limit must be a positive integer");
-        }
-        limit = Math.min(filter.limit, MAX_EVENT_LIMIT);
+        limit = assertBoundedLimit(filter.limit, MAX_EVENT_LIMIT);
       }
       const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
       const rows = db
@@ -204,17 +191,13 @@ export function createEventsRepo(db: DatabaseSync) {
      * snapshots or feed the dashboard.
      */
     upsert(watchpointId: string, inputs: readonly EventInput[]): UpsertResult {
-      const watchpoint = selectWatchpoint.get(watchpointId) as WatchpointRefRow | undefined;
-      if (!watchpoint) {
-        throw new Error(`watchpoint not found: ${watchpointId}`);
-      }
+      const watchpoint = requireWatchpointRow(db, watchpointId);
 
       let inserted = 0;
       let updated = 0;
       const records: EventRecord[] = [];
 
-      db.exec("BEGIN");
-      try {
+      const run = (): void => {
         for (const input of inputs) {
           assertEventInput(input);
           const externalId = input.externalId ?? null;
@@ -224,7 +207,7 @@ export function createEventsRepo(db: DatabaseSync) {
             externalId,
             url: input.url,
           });
-          const metrics = assertMetrics(input.metrics);
+          const metrics = normalizeMetrics(input.metrics ?? {});
           const metadata = input.metadata === undefined ? null : JSON.stringify(input.metadata);
           const summary = input.summary ?? null;
           const author = input.author ?? null;
@@ -284,20 +267,10 @@ export function createEventsRepo(db: DatabaseSync) {
           const stored = selectById.get(eventId) as unknown as EventRow;
           records.push(rowToEvent(stored));
         }
-        db.exec("COMMIT");
-      } catch (error) {
-        db.exec("ROLLBACK");
-        throw error;
-      }
+      };
+      withTransaction(db, run);
 
       return { inserted, updated, records };
-    },
-
-    /** Exposed for the dedup pipeline (#11) to inspect stored dedup state. */
-    stats(): { events: number; dedupKeys: number } {
-      const events = db.prepare("SELECT COUNT(*) AS n FROM events").get() as { n: number };
-      const dedupKeys = db.prepare("SELECT COUNT(*) AS n FROM dedup_keys").get() as { n: number };
-      return { events: events.n, dedupKeys: dedupKeys.n };
     },
   };
 }

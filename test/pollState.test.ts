@@ -41,7 +41,7 @@ test("recordPollSuccess stores watermark and last success", () => {
 
     const state = store.pollState.get(id);
     assert.ok(state);
-    assert.equal(state.pollState, watermark);
+    assert.equal(state.watermark, watermark);
     assert.equal(state.lastSuccessAt, "2026-09-26T01:00:00.000Z");
     assert.equal(state.consecutiveFailures, 0);
     assert.equal(state.lastErrorAt, null);
@@ -54,7 +54,7 @@ test("watermark round-trips as an opaque string", () => {
     const opaque = "gASVopaque==base64/中文 + spaces";
     store.pollState.recordSuccess(id, { state: opaque, at: "2026-09-26T01:00:00.000Z" });
     store.pollState.recordSuccess(id, { state: "next", at: "2026-09-26T01:10:00.000Z" });
-    assert.equal(store.pollState.get(id)?.pollState, "next");
+    assert.equal(store.pollState.get(id)?.watermark, "next");
   });
 });
 
@@ -76,7 +76,7 @@ test("recordPollFailure increments consecutive failures and keeps last success",
     const state = store.pollState.get(id);
     assert.ok(state);
     assert.equal(state.lastSuccessAt, "2026-09-26T01:00:00.000Z");
-    assert.equal(state.pollState, "w1", "watermark must only change on success");
+    assert.equal(state.watermark, "w1", "watermark must only change on success");
     assert.equal(state.lastErrorAt, "2026-09-26T01:10:00.000Z");
     assert.equal(state.lastErrorReason, "temporary_failure");
     assert.equal(state.lastErrorMessage, "网络错误");
@@ -101,7 +101,7 @@ test("success after failures resets the consecutive counter but keeps last error
     assert.equal(state.lastErrorReason, "auth_error", "last error stays queryable for status UI");
     assert.equal(state.lastErrorMessage, "Cookie 过期");
     assert.equal(state.lastErrorAt, "2026-09-26T01:00:00.000Z");
-    assert.equal(state.pollState, "w2");
+    assert.equal(state.watermark, "w2");
   });
 });
 

@@ -50,7 +50,8 @@ export interface Watchpoint {
  */
 export interface WatchpointState {
   watchpointId: string;
-  pollState: string | null;
+  /** Opaque watermark (column poll_state); passed back to the Connector verbatim. */
+  watermark: string | null;
   lastSuccessAt: string | null;
   lastErrorAt: string | null;
   lastErrorReason: PollFailureReason | null;

@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { withTransaction } from "./tx.ts";
 
 /**
  * Ordered, append-only migration list. Each migration runs inside a single
@@ -123,8 +124,7 @@ export function migrate(db: DatabaseSync): void {
 
   for (const migration of migrations) {
     if (applied.has(migration.version)) continue;
-    db.exec("BEGIN");
-    try {
+    withTransaction(db, () => {
       for (const statement of migration.up) {
         db.exec(statement);
       }
@@ -133,10 +133,6 @@ export function migrate(db: DatabaseSync): void {
         migration.name,
         new Date().toISOString(),
       );
-      db.exec("COMMIT");
-    } catch (error) {
-      db.exec("ROLLBACK");
-      throw error;
-    }
+    });
   }
 }

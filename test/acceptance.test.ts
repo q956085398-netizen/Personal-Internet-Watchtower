@@ -50,7 +50,7 @@ test("issue #9 acceptance: one full poll cycle across a restart", () => {
       at: "2026-09-26T00:10:00.000Z",
     });
     const state = store.pollState.get(watchpointId);
-    assert.equal(state?.pollState, watermark, "watermark round-trips verbatim");
+    assert.equal(state?.watermark, watermark, "watermark round-trips verbatim");
     assert.equal(state?.lastSuccessAt, "2026-09-26T00:10:00.000Z");
     assert.equal(state?.lastErrorReason, "rate_limited", "last error stays queryable");
 

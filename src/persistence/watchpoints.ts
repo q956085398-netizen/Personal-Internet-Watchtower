@@ -81,6 +81,25 @@ function assertParams(params: WatchpointParams): void {
   }
 }
 
+export interface WatchpointRef {
+  id: string;
+  connector_id: string;
+}
+
+/**
+ * existence check + connector binding shared by the events and pollState
+ * repos, which stamp or scope rows by the watchpoint's connector.
+ */
+export function requireWatchpointRow(db: DatabaseSync, watchpointId: string): WatchpointRef {
+  const row = db
+    .prepare("SELECT id, connector_id FROM watchpoints WHERE id = ?")
+    .get(watchpointId) as WatchpointRef | undefined;
+  if (!row) {
+    throw new Error(`watchpoint not found: ${watchpointId}`);
+  }
+  return row;
+}
+
 /**
  * Watchpoint configuration CRUD. Per ADR-0001 §2 the Core never interprets
  * `params` — it stores and passes them through to the Connector. Runtime
