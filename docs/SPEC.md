@@ -126,7 +126,7 @@ Minimum shape:
 
 ```text
 id
-connector
+connector_id
 watchpoint_id
 event_type
 title
@@ -135,10 +135,14 @@ url
 author?
 published_at?
 discovered_at
-thumbnail?
+thumbnail_url?
 metrics?
 reason
+external_id?
+metadata?
 ```
+
+字段名与必填/可选、枚举值、dedup 与失败模型的完整定义以 [ADR-0001](adr/0001-connector-watchpoint-event-contract.md) 为准。
 
 `reason` explains why the item is shown, e.g.:
 

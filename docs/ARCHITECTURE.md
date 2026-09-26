@@ -1,6 +1,7 @@
 # 架构草案
 
-> 本文档描述当前阶段的工程方向，不代表最终技术选型。
+> 本文档描述当前阶段的工程方向，不代表最终技术选型。  
+> Connector / Watchpoint / Event 的具体契约以 [ADR-0001](adr/0001-connector-watchpoint-event-contract.md) 为准。
 
 ## 1. 核心对象
 
@@ -38,23 +39,7 @@
 
 Connector 输出统一的数据对象。
 
-建议最小字段：
-
-```text
-id
-source
-source_type
-event_type
-title
-summary
-url
-author
-published_at
-discovered_at
-thumbnail
-metrics
-reason
-```
+完整 schema、必填/可选、枚举值与 dedup 规则以 [ADR-0001](adr/0001-connector-watchpoint-event-contract.md) 为准。概念上分五组：身份（`connector_id` / `watchpoint_id`）、分类（`event_type`）、内容（`title` / `url` / `summary`）、解释（`reason`）、可选附加（`metrics` / `metadata`）。
 
 其中 `reason` 用来说明“为什么这条内容出现在这里”，例如：
 

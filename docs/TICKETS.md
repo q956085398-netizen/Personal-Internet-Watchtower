@@ -7,7 +7,7 @@
 
 这些 tickets 可以优先并行：
 
-- [#2 Connector / Watchpoint / Event contract](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/2)
+- [#2 Connector / Watchpoint / Event contract](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/2) — **resolved: contract defined in [ADR-0001](adr/0001-connector-watchpoint-event-contract.md)**
 - [#3 v0 Secrets / credentials](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/3)
 - [#4 NGA feasibility](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/4)
 - [#5 Bilibili feasibility](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/5)
