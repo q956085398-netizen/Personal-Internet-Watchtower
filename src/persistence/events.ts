@@ -89,7 +89,8 @@ function parseJsonOrNull<T>(json: string | null): T | null {
   return json === null ? null : (JSON.parse(json) as T);
 }
 
-function rowToEvent(row: EventRow): EventRecord {
+/** Shared with the feed view (feed.ts), which selects the same columns. */
+export function rowToEvent(row: EventRow): EventRecord {
   return {
     id: row.id,
     dedupKey: row.dedup_key,
