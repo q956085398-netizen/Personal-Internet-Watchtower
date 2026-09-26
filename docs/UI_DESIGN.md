@@ -314,8 +314,9 @@ Keep:
 
 - the watchtower UI source;
 - styles/tokens;
-- screenshots useful for design comparison;
 - enough project files to inspect or run the reference.
+
+Screenshots may be regenerated from the corrected source, but outdated screenshots must not remain as design authority.
 
 Do not treat Grok/App Builder infrastructure as product requirements.
 
