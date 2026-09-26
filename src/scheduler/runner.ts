@@ -1,4 +1,4 @@
-import type { ConnectorCredentials, PollContext, PollFailure, PollResult, PollSuccess } from "../contract.ts";
+import type { Connector, ConnectorCredentials, PollContext, PollFailure, PollResult, PollSuccess } from "../contract.ts";
 import type { Store } from "../persistence/index.ts";
 import type { PollFailureReason, Watchpoint } from "../persistence/types.ts";
 import type { ConnectorRegistry } from "../registry.ts";
@@ -69,6 +69,21 @@ function addSeconds(at: Date, seconds: number): string {
 
 function describeError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * Core-side gate for the "credentials missing" error (issue #3): a kind that
+ * requires credentials is never polled with a null context the Connector
+ * cannot use. Recorded as auth_error (ADR-0001 §3), which stops automatic
+ * scheduling until credentials are configured and the user re-runs manually.
+ */
+function missingCredentialsMessage(connectorId: string, connector: Connector): string {
+  const fields = connector.metadata.credentials?.fields.map((field) => field.name) ?? [];
+  const expected = fields.length > 0 ? ` (expected fields: ${fields.join(", ")})` : "";
+  return (
+    `missing credentials for connector "${connectorId}"${expected}: configure them in the ` +
+    `secrets file or via WATCHTOWER_SECRET_* environment variables (docs/SECRETS.md)`
+  );
 }
 
 function assertPositiveOption(value: number, name: string): void {
@@ -167,9 +182,17 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
     }
 
     const kind = registry.kindOf(watchpoint.connectorId, watchpoint.kind);
-    const credentials =
-      kind?.requiresCredentials === true ? (resolveCredentials(watchpoint.connectorId) ?? null) : null;
     const before = store.pollState.get(watchpoint.id);
+    const requiresCredentials = kind?.requiresCredentials === true;
+    const credentials = requiresCredentials ? (resolveCredentials(watchpoint.connectorId) ?? null) : null;
+    if (requiresCredentials && (credentials === null || Object.keys(credentials).length === 0)) {
+      return recordFailure(
+        watchpoint,
+        before,
+        "auth_error",
+        missingCredentialsMessage(watchpoint.connectorId, connector),
+      );
+    }
     const ctx: PollContext = {
       now: now(),
       credentials,

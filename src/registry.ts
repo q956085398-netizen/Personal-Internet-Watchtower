@@ -13,7 +13,8 @@ import {
  * specific sites — branching happens on declared kinds/capabilities only.
  */
 
-const CONNECTOR_ID_PATTERN = /^[a-z][a-z0-9_-]*$/;
+/** Connector-id syntax (ADR-0001 §1); also used by the secrets layer's scopes. */
+export const CONNECTOR_ID_PATTERN = /^[a-z][a-z0-9_-]*$/;
 
 export interface ConnectorRegistry {
   /** Validates and registers a connector; throws on any contract violation. */

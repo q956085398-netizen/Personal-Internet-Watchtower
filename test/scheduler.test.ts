@@ -618,6 +618,79 @@ test("kinds that do not require credentials get a null credential context", asyn
   );
 });
 
+test("missing required credentials fail with auth_error before the connector is invoked", async () => {
+  const polls: unknown[] = [];
+  await withHarness(
+    [
+      makePollConnector(async () => {
+        polls.push("called");
+        return { ok: true, events: [] };
+      }),
+    ],
+    {},
+    async ({ store, scheduler }) => {
+      const id = addWatchpoint(store, { kind: "account_events" });
+
+      const outcome = await scheduler.runNow(id);
+      assert.ok(outcome.status === "failure");
+      assert.equal(outcome.reason, "auth_error");
+      assert.match(outcome.message, /credential/i);
+
+      // Core detects the missing credentials itself (issue #3): the Connector
+      // is never invoked with a null context it cannot use.
+      assert.deepEqual(polls, []);
+
+      const state = store.pollState.get(id);
+      assert.equal(state?.lastErrorReason, "auth_error");
+      assert.equal(state?.nextDueAt, null);
+      assert.equal(state?.consecutiveFailures, 1);
+    },
+  );
+});
+
+test("an empty credential record counts as missing", async () => {
+  const polls: unknown[] = [];
+  await withHarness(
+    [
+      makePollConnector(async () => {
+        polls.push("called");
+        return { ok: true, events: [] };
+      }),
+    ],
+    { resolveCredentials: () => ({}) },
+    async ({ store, scheduler }) => {
+      const id = addWatchpoint(store, { kind: "account_events" });
+      const outcome = await scheduler.runNow(id);
+      assert.ok(outcome.status === "failure");
+      assert.equal(outcome.reason, "auth_error");
+      assert.deepEqual(polls, []);
+    },
+  );
+});
+
+test("the missing-credentials message names the expected fields when declared", async () => {
+  await withHarness(
+    [
+      makePollConnector(async () => ({ ok: true, events: [] }), {
+        metadata: {
+          id: "testsite",
+          displayName: "Test Site",
+          homeUrl: "https://example.com",
+          contractVersion: CONTRACT_VERSION,
+          credentials: { kind: "cookie", fields: [{ name: "cookie", label: "Cookie" }] },
+        },
+      }),
+    ],
+    {},
+    async ({ store, scheduler }) => {
+      const id = addWatchpoint(store, { kind: "account_events" });
+      const outcome = await scheduler.runNow(id);
+      assert.ok(outcome.status === "failure");
+      assert.match(outcome.message, /cookie/);
+    },
+  );
+});
+
 test("a poll batch is truncated to the contract maximum of 50 events", async () => {
   await withHarness(
     [

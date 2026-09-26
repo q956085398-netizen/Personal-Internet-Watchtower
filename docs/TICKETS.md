@@ -8,7 +8,7 @@
 这些 tickets 可以优先并行：
 
 - [#2 Connector / Watchpoint / Event contract](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/2) — **resolved: contract defined in [ADR-0001](adr/0001-connector-watchpoint-event-contract.md)**
-- [#3 v0 Secrets / credentials](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/3)
+- [#3 v0 Secrets / credentials](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/3) — **resolved: secret 文件 + env 覆盖 `src/secrets/`（ADR-0002），runner 缺失凭据记 auth_error，状态视图只暴露 presence，21 tests**
 - [#4 NGA feasibility](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/4)
 - [#5 Bilibili feasibility](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/5)
 - [#6 龙空 feasibility](https://github.com/q956085398-netizen/Personal-Internet-Watchtower/issues/6)

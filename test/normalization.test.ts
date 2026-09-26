@@ -300,7 +300,12 @@ test("runner → feed: poll results surface with derived sections", async () => 
     resolveExercises: (connectorId, kind) => registry.kindOf(connectorId, kind)?.exercises,
   });
   try {
-    const scheduler = createScheduler({ store, registry, now: () => new Date(0) });
+    const scheduler = createScheduler({
+      store,
+      registry,
+      now: () => new Date(0),
+      resolveCredentials: () => ({ sessdata: "test-session" }),
+    });
     const board = store.watchpoints.create({
       connectorId: "nga",
       kind: "board",
