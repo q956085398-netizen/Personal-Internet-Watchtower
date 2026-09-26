@@ -15,3 +15,14 @@ The five canonical triage roles map to the default label strings. See `docs/agen
 ### Domain docs
 
 Single-context layout: one `CONTEXT.md` plus `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+
+### UI baseline
+
+The current UI reference is `docs/grok-UI-referenc/`. Before changing product-facing UI, read `docs/UI_DESIGN.md`.
+
+Hard classification rules:
+- “和我有关” = replies / likes / @mentions only.
+- “关注更新” = updates from explicit watchpoints, including forum threads, followed uploads, and followed live streams.
+- “值得看看” = bounded, explainable surfacing inside already-added sources.
+- Do not add persistent philosophy/slogan/end-of-feed copy to the main dashboard.
