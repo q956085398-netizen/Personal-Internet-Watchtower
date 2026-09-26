@@ -1,0 +1,18 @@
+{
+  "name": "personal-internet-watchtower",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Personal Internet Watchtower — v0 core persistence (issue #9)",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "test": "node --disable-warning=ExperimentalWarning --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "typescript": "^5.9.2"
+  }
+}
