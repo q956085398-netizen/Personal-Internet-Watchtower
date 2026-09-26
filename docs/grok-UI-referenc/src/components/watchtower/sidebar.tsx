@@ -1,4 +1,4 @@
-import { CircleAlert, Pause, RotateCcw, Trash2 } from "lucide-react";
+import { CircleAlert, Pause, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AddWatchpoint } from "@/components/watchtower/add-watchpoint";
 import { TowerMark } from "@/components/watchtower/mark";
@@ -56,9 +56,6 @@ export function Sidebar({
             </p>
           </div>
         </div>
-        <p className="mt-5 text-sm leading-relaxed text-ink-muted">
-          替你去你常去的地方看一眼。有事再进来，没事就关掉。
-        </p>
       </header>
 
       <div className="mt-6 rounded-xl bg-paper-raised p-4 shadow-card">
@@ -132,24 +129,7 @@ export function Sidebar({
         </div>
       </div>
 
-      <footer className="mt-6 border-t border-line pt-4">
-        <p className="text-xs leading-relaxed text-ink-faint">
-          这个页面不是用来刷的。看完就可以关掉。
-        </p>
-        <Button
-          variant="silent"
-          size="sm"
-          className="mt-2 h-9 px-2 text-xs"
-          onClick={() => {
-            reset();
-            toast("已恢复示例数据");
-          }}
-        >
-          <RotateCcw className="size-3.5" />
-          恢复示例
-        </Button>
-      </footer>
-    </div>
+   </div>
   );
 }
 
