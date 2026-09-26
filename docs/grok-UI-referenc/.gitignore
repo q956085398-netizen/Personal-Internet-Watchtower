@@ -1,0 +1,8 @@
+node_modules/
+.vercel/
+.grok/
+.project_id
+.node_modules.lock
+dist/
+.DS_Store
+*.log
