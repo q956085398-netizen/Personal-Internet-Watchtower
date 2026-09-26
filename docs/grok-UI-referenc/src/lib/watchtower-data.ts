@@ -183,7 +183,7 @@ export const SEED_EVENTS: EventItem[] = [
     id: "e-live-lao",
     watchpointId: "bili-live",
     connector: "bilibili",
-    section: "about-me",
+    section: "following",
     kind: "live",
     live: true,
     title: "老番茄 正在直播",
