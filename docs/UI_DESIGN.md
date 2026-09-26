@@ -1,576 +1,340 @@
 # UI Design Rules
 
-> Status: **Design baseline / near-final**
+> Status: **Current design baseline**
 >
-> Purpose: 给后续实现者（包括其他 AI）一个明确的视觉与信息架构约束，避免在继续开发时把界面重新做成“泛蓝、发光、卡片凸起、解释过多”的大型 Dashboard。
+> Primary reference: [`docs/grok-UI-referenc/`](grok-UI-referenc/)
 >
-> 本文优先级高于临时生成的页面细节；例图用于补充视觉参考，不应反过来覆盖产品原则。
+> The Grok reference is now the visual baseline. This document records the rules that must remain true when that reference is implemented or evolved. If a screenshot/source file conflicts with a hard rule below, this document wins.
 
 ---
 
-## 1. UI 的任务
+## 1. Role of the UI
 
-Watchtower 的 UI 只做一件事：
+The dashboard exists to help the user quickly judge whether anything in a small set of familiar places is worth opening.
 
-> **让我快速判断：我平时会看的几个地方，现在有没有值得我点进去看的东西。**
+It is not a Reader, an infinite feed, or a place to restate the product philosophy.
 
-因此界面应该帮助用户：
+The interface should prioritize:
 
-- 一眼看清发生了什么；
-- 一眼判断是否感兴趣；
-- 有兴趣时点击原站；
-- 没兴趣时立即结束检查。
-
-它不是 Reader，不是社交产品，也不是另一个推荐流。
+- concrete content;
+- source/state;
+- enough metadata to decide whether to click;
+- watchpoint status and controls.
 
 ---
 
-## 2. 总体视觉方向
+## 2. Visual direction
 
-### 2.1 关键词
+Use the Grok reference as the seed:
 
-- 克制
-- 安静
-- 扁平
-- 清晰
-- 信息密度适中
-- 少装饰
-- 少解释
-- 强层级
-- 可快速扫读
+- warm paper / off-white background;
+- dark ink text;
+- restrained blue-gray / horizon accent;
+- serif display typography for section hierarchy;
+- sans-serif for controls and body text;
+- soft, low-contrast surfaces;
+- subtle 1px borders / very light shadows;
+- calm editorial feeling rather than “tech dashboard” styling.
 
-### 2.2 明确避免
+Avoid reintroducing:
 
-不要使用：
+- full-screen blue tint;
+- strong glow;
+- glassmorphism / neumorphism;
+- excessive card elevation;
+- decorative wallpaper;
+- explanation sidebars;
+- large slogan blocks;
+- busy status decoration.
 
-- 全屏泛蓝色调；
-- 大面积蓝色渐变 / 蓝色光晕；
-- 微微凸起的 neumorphism / 玻璃拟态；
-- 过强阴影；
-- 发光边框；
-- 大量装饰性图标；
-- 背景壁纸；
-- 左侧栏插画；
-- slogan 卡片；
-- 解释性右侧栏；
-- 为了“丰富页面”而增加无操作价值的内容。
-
-界面应该像一个安静的工具，而不是科技概念展示页。
+The UI should feel like a quiet briefing sheet.
 
 ---
 
-## 3. 推荐基础视觉 Token
+## 3. Product philosophy belongs in docs, not permanent chrome
 
-以下 Token 是实现时的默认方向，不要求像素级完全一致，但不应大幅偏离。
+The following kinds of copy are **not** persistent dashboard UI:
 
-### 3.1 色彩
+- “替你去你常去的地方看一眼。有事再进来，没事就关掉。”
+- “这个页面不是用来刷的。看完就可以关掉。”
+- “有限，有尽头。只回答一件事……”
+- “以上就是这次巡逻的全部。没有下一页，没有推荐流……”
+- similar slogans, philosophy explanations, or end-of-list speeches.
+
+These ideas remain valid product principles, but belong in README / docs / onboarding if needed.
+
+On the main UI:
+
+- normal content should simply end;
+- empty state should be short, e.g. “暂无新内容”;
+- patrol completion may simply say “巡逻完成”.
+
+---
+
+## 4. Information architecture
+
+The main dashboard has three sections:
 
 ```text
-Background       #0E1116
-Sidebar          #0C1117
-Surface          #151B22
-Surface Hover    #19212A
-Border           #26313C
-
-Text Primary     #F3F6FA
-Text Secondary   #A7B0BC
-Text Muted       #788391
-
-Accent Blue      #2D8CFF
-Success          #35C98A
-Live Red         #FF4D6D
-Hot Orange       #FF7A45
-Discovery Purple #8B5CF6
+和我有关
+关注更新
+值得看看
 ```
 
-规则：
+These are semantic buckets, not source buckets.
 
-- 蓝色只用于**选中态、关键交互、链接**。
-- 不要给整个页面加蓝色蒙版。
-- 红色只用于直播 / 必须立即辨识的 live 状态。
-- 橙色用于热帖 / 升温。
-- 紫色用于实验性的 AI 发现。
-- 绿色主要用于连接正常 / 状态健康，不作为主视觉色。
+### 4.1 和我有关
 
-### 3.2 圆角
-
-```text
-Small control:  8px
-Card:          10–12px
-Large panel:   12px
-```
-
-不要使用过度圆润的大胶囊式 UI。
-
-### 3.3 阴影
-
-默认无阴影或只有极弱阴影。
-
-卡片主要依靠：
-
-- surface 色差；
-- 1px border；
-- spacing；
-
-建立层级。
-
-### 3.4 字体层级
-
-建议：
-
-```text
-Primary title / exact content title  16–18px / semibold
-Card action summary                  15–16px / medium
-Body / excerpt                       14px
-Metadata                             12–13px
-```
-
-原始帖子 / 视频标题必须比统计数字更醒目。
-
----
-
-## 4. 应用骨架
-
-桌面版采用固定两栏：
-
-```text
-┌───────────────┬──────────────────────────────────┐
-│ Sidebar       │ Main                             │
-│               │                                  │
-│ Nav           │ Primary tabs                     │
-│ Sources       │ Filter chips                     │
-│               │                                  │
-│               │ Actual content                   │
-└───────────────┴──────────────────────────────────┘
-```
-
-### 4.1 Sidebar
-
-只保留必要信息：
-
-- Logo / 聚合视界
-- 概览
-- 瞭望点
-- 规则
-- 设置
-- 已添加的地方
-  - NGA
-  - Bilibili
-  - 龙空
-  - ...
-
-不要放：
-
-- 壁纸；
-- 插画；
-- slogan；
-- 统计大卡；
-- 解释说明。
-
-### 4.2 新增数据源入口
-
-**只允许一个显式“新增地方”入口。**
-
-默认推荐：
-
-> 放在左侧“已添加的地方”标题旁边，用一个小型 `+`。
-
-禁止同时出现：
-
-- 左侧 `+`
-- 顶部大号“添加地方”按钮
-
-二者只能选一个。
-
----
-
-## 5. 顶部信息架构
-
-概览页固定为三个一级页签：
-
-```text
-和我有关   |   帖子讨论   |   视频动态
-```
-
-每个页签可显示有限数量 badge。
-
-例如：
-
-```text
-和我有关 3
-帖子讨论 8
-视频动态 6
-```
-
-右上区域仅保留轻量状态：
-
-- 上次更新
-- 手动刷新
-- 头像 / 菜单
-
-不要再放：
-
-- 大页面标题；
-- slogan；
-- 大型新增按钮；
-- 额外解释。
-
----
-
-## 6. “和我有关”页面
-
-### 6.1 严格定义
-
-只收录：
-
-- 回复我；
-- 点赞我；
-- @ 我。
-
-可来自：
-
-- NGA；
-- Bilibili；
-- 未来其他已添加站点。
-
-明确**不包括**：
-
-- 主播开播；
-- 关注 UP 更新；
-- 新帖；
-- 热帖；
-- AI 发现。
-
-### 6.2 二级筛选
-
-```text
-全部 | 回复我 | 点赞我 | @我
-```
-
-### 6.3 卡片信息
-
-每条事件必须直接给出判断所需信息：
-
-- 来源；
-- 事件动作；
-- 原始帖子 / 视频标题；
-- 一行上下文；
-- 时间；
-- 必要统计；
-- 前往原站。
-
-不要写成：
-
-> “你有 3 个新互动”
-
-而应该列出具体事件。
-
----
-
-## 7. “帖子讨论”页面
-
-### 7.1 数据源约束
-
-这里只放**论坛型内容**。
-
-当前允许：
-
-- NGA；
-- 龙空；
-- 未来的贴吧 / 其他论坛。
-
-**Bilibili 不应出现在“帖子讨论”中。**
-
-### 7.2 二级筛选
-
-```text
-全部 | 新帖 | 热帖 | 升温中
-```
-
-### 7.3 列表原则
-
-必须逐条展示帖子。
-
-每一行至少有：
-
-- 来源；
-- 板块；
-- 原始标题；
-- 回帖数；
-- 时间；
-- 状态标签（可选）；
-- 一行摘要（可选）；
-- 前往原站。
-
-不要展示：
-
-> “出现 3 个热帖”
-
-而要直接展示这 3 个帖子的标题和回帖数。
-
-### 7.4 排序
-
-默认可按：
-
-- 最新；
-- 热度；
-- 升温趋势；
-
-但页面仍然必须是**有限结果**，不能无限滚动。
-
----
-
-## 8. “视频动态”页面
-
-这是 Bilibili 等视频来源的主要入口。
-
-### 8.1 统一承载三类视频事件
-
-```text
-全部
-├── 新视频
-├── 正在直播
-└── AI发现
-```
-
-因此：
-
-- “关注的 UP 发了新视频”放这里；
-- “关注的主播正在直播”放这里；
-- 用户主动开启的 Bilibili 站内 AI 发现也放这里。
-
-不需要另外创造“关注更新”第四个一级页签。
-
-### 8.2 二级筛选
-
-```text
-全部 | 新视频 | 正在直播 | AI发现
-```
-
-### 8.3 视频卡必须展示实际候选内容
-
-必须直接展示：
-
-- 缩略图；
-- 原始标题；
-- UP 主；
-- 发布时间 / 开播状态；
-- 播放量 / 观看人数；
-- 必要增长数据；
-- 来源类型标签：
-  - 关注更新
-  - 直播中
-  - AI发现
-- 前往原站。
-
-### 8.4 AI 发现
-
-不能写成：
-
-> “AI 相关视频正在快速增长”
-
-而应该列出具体视频。
-
-每条 AI 发现可补充：
-
-> 为什么出现：匹配 AI 标签 · 增长较快
-
-AI 发现只允许发生在用户已经添加的视频源内部。
-
----
-
-## 9. 内容密度与布局
-
-### 9.1 论坛 / 互动
-
-适合纵向列表。
-
-推荐：
-
-- 一屏 5–8 条；
-- 标题单行或两行；
-- 摘要最多一行；
-- 统计信息保持次要。
-
-### 9.2 视频
-
-适合两列或三列卡片。
-
-当前桌面版推荐：
-
-- 2 列大卡，或
-- 3 列中卡。
-
-如果缩略图和标题可读性下降，优先减少列数，不要压缩内容。
-
----
-
-## 10. 信息优先级
-
-从高到低：
-
-1. **我为什么要看这条？**
-2. **它具体是什么？（原始标题 / 缩略图）**
-3. **现在有多新 / 多热？**
-4. 来源 / 分类
-5. 其他统计
-
-不要让：
-
-- 播放量；
-- 图标；
-- 标签；
-- 状态色；
-
-压过原始内容标题。
-
----
-
-## 11. 状态标签
-
-统一使用少量标签：
-
-### Forum
-
-- 新帖
-- 热帖
-- 正在升温
-
-### Video
-
-- 关注更新
-- 直播中
-- AI发现
-
-### Account interaction
+Strictly direct account interactions:
 
 - 回复我
 - 点赞我
 - @我
 
-不要发明大量语义重叠的状态名。
+Possible sources include NGA, Bilibili comments, or future connectors.
+
+Must not include:
+
+- followed streamer live;
+- followed UP upload;
+- ordinary forum threads;
+- hot threads;
+- local discovery.
+
+A live event is important, but it is not “about me”.
+
+### 4.2 关注更新
+
+Everything that changed in a place/object the user explicitly asked Watchtower to watch.
+
+Examples:
+
+- NGA / 龙空 board thread;
+- followed UP published a new video;
+- followed streamer went live;
+- subscribed channel/blog updated.
+
+This is where followed livestream notifications belong.
+
+### 4.3 值得看看
+
+Bounded, explainable surfacing inside sources already added by the user.
+
+Examples:
+
+- one concrete watched-forum thread is rapidly gaining replies;
+- one concrete Bilibili video matches an explicitly enabled AI rule and is growing fast.
+
+This section never creates a new source.
 
 ---
 
-## 12. 交互规则
+## 5. Show concrete content, not aggregate announcements
 
-### 12.1 前往原站
+The user should be able to decide from the Watchtower itself whether opening the original site is worthwhile.
 
-这是每条内容的主要动作。
+### Forum
 
-按钮应清晰但不过度抢眼：
+Prefer one visible item per thread.
 
-```text
-前往原站 →
-```
+Show:
 
-### 12.2 Hover
+- original thread title;
+- source + board;
+- reply count;
+- time;
+- optional new/hot/rising signal;
+- direct original link.
 
-允许：
+Avoid making the primary card only:
 
-- 卡片边框略亮；
-- 背景略提亮；
-- 标题链接变蓝。
+- “出现 3 个热帖”
+- “综合讨论出现 5 个新帖”
 
-不要：
+If a grouped representation is temporarily used in a prototype, all actual thread titles and reply counts must be visible without another click, and production UI should prefer individual rows.
 
-- 卡片浮起；
-- 大幅缩放；
-- 发光；
-- 强动画。
+### Video
 
-### 12.3 选中态
+Show the actual candidate:
 
-页签和筛选器使用：
+- thumbnail when available;
+- original title;
+- creator;
+- publish time / live status;
+- useful metric such as views or current audience;
+- direct original link.
 
-- 蓝色边框 / 蓝色底；
-- 高对比文字；
+For discovery, add only concise explanation such as:
 
-而不是整页染蓝。
+> 匹配 AI 规则 · 近 2 小时增长较快
 
----
+Do not make “AI 视频正在增长” itself the content card.
 
-## 13. 不要使用解释性右栏
+### Live
 
-已经决定：
+Show:
 
-> 概览页面不保留解释型右侧栏。
+- streamer;
+- live title/topic;
+- live badge/state;
+- current audience if available;
+- direct live-room link.
 
-原因：
-
-- 用户已经知道这些页面代表什么；
-- 它挤压真正内容；
-- 增加视觉噪音；
-- 大量重复说明没有持续价值。
-
-必要解释应该出现在：
-
-- 初次使用 onboarding；
-- 设置页；
-- tooltip；
-- 帮助文档。
-
-而不是常驻首页。
+Live belongs to **关注更新**.
 
 ---
 
-## 14. 不要使用“结束语”占位
+## 6. Sidebar
 
-不要在列表底部重复显示：
+The current Grok layout uses the sidebar for:
 
-- “已经看到这里了”
-- “暂时没有更多内容”
-- “去喝杯水吧”
+- product mark/name;
+- last patrol / health;
+- current watchpoints grouped by source;
+- pause/resume/remove;
+- add watchpoint.
 
-如果没有新内容，直接显示一个简洁 empty state 即可。
+Keep it functional.
 
-正常列表已经自然结束时，不需要额外文案。
+Do not add permanent:
 
----
+- product manifesto;
+- slogan;
+- decorative illustration;
+- “read this and close the page” reminders.
 
-## 15. 设计审查 Checklist
-
-任何新的 UI PR / AI 生成稿，先检查：
-
-- [ ] 是否仍然只有三个一级内容页签？
-- [ ] “和我有关”是否只包含回复 / 点赞 / @？
-- [ ] Bilibili 是否错误出现在“帖子讨论”？
-- [ ] 关注 UP 更新 / 直播是否统一进入“视频动态”？
-- [ ] 帖子是否逐条展示原始标题和回帖数？
-- [ ] 视频是否直接展示缩略图和标题？
-- [ ] 是否出现了全屏泛蓝 / 发光 / 凸起卡片？
-- [ ] 是否新增了没有操作价值的说明栏？
-- [ ] 是否出现重复的“添加地方”入口？
-- [ ] 是否出现装饰性壁纸 / slogan / footer 结束语？
-- [ ] 是否有无限滚动倾向？
-- [ ] 是否能在几秒内判断“要不要点开”？
-
-只要其中关键项失败，就应先修设计，而不是继续堆功能。
+A short error/health status is useful because it changes user action.
 
 ---
 
-## 16. 参考图
+## 7. Section headers
 
-建议在仓库中建立：
+Keep section headers compact:
 
-```text
-docs/ui-examples/
-├── 01-related.png
-├── 02-discussions.png
-└── 03-video-activity.png
-```
+- section name;
+- bounded count;
+- optional dismiss/acknowledge action if useful.
 
-三张图分别对应：
+Avoid explanatory kicker text that merely restates what the section means. The user learns the semantics once; content deserves the space afterward.
 
-1. 和我有关
-2. 帖子讨论
-3. 视频动态
+---
 
-这些图片用于**视觉一致性参考**，不要求实现像素级复刻。
+## 8. Cards
 
-真正不可偏离的是本文的：
+Card hierarchy:
 
-- 信息架构；
-- 内容归类；
-- 视觉克制原则；
-- 数据呈现优先级。
+1. exact content/event title;
+2. source + relevant context;
+3. concrete excerpt or subject;
+4. useful metrics/status;
+5. direct-link affordance;
+6. optional concise reason.
+
+Reason text must explain a real signal, not repeat philosophy.
+
+Good:
+
+- “你关注的主播开播”
+- “过去 1 小时 +90 回复”
+- “匹配 AI 规则 · 近 2 小时增长较快”
+
+Bad:
+
+- “不是广场噪音”
+- “这是你主动加入的世界”
+- “看完就可以关掉”
+
+---
+
+## 9. Motion
+
+Motion stays subtle.
+
+Allowed:
+
+- gentle initial fade/rise;
+- live-dot pulse;
+- small hover state.
+
+Avoid:
+
+- card floating;
+- scale-up;
+- glow;
+- large parallax;
+- attention-seeking looping animation.
+
+Respect `prefers-reduced-motion`.
+
+---
+
+## 10. Add-watchpoint flow
+
+Adding or removing a familiar place must remain simple.
+
+The user should not need to see:
+
+- RSSHub route;
+- XPath;
+- CSS selector;
+- scraping implementation;
+- Playwright configuration.
+
+The add dialog may explain the immediate operation, but should not repeat the full product philosophy.
+
+---
+
+## 11. Empty/error states
+
+### Empty
+
+Keep it minimal:
+
+> 暂无新内容
+
+No speech, slogan, or moral framing.
+
+### Connector error
+
+This is actionable and should be visible:
+
+- which source/watchpoint failed;
+- whether cached data is stale;
+- re-auth / retry action when available.
+
+A broken connector must not hide healthy sources.
+
+---
+
+## 12. Reference implementation hygiene
+
+`docs/grok-UI-referenc/` is a **UI reference**, not the production architecture.
+
+Keep:
+
+- the watchtower UI source;
+- styles/tokens;
+- screenshots useful for design comparison;
+- enough project files to inspect or run the reference.
+
+Do not treat Grok/App Builder infrastructure as product requirements.
+
+Generated/provider-specific artifacts such as `.grok/`, `.vercel/output/`, project IDs, preview logs, or unrelated generator skills should not guide the product and should not be committed when they are not needed to run/reference the UI.
+
+---
+
+## 13. Design review checklist
+
+Before accepting a UI change:
+
+- [ ] Is “和我有关” limited to replies / likes / @mentions?
+- [ ] Are followed uploads and followed livestreams in “关注更新”?
+- [ ] Are forum items concrete titles with reply counts rather than only aggregate announcements?
+- [ ] Are video/discovery items concrete titles/thumbnails rather than vague summary cards?
+- [ ] Does the UI still only use sources the user explicitly added?
+- [ ] Is the result bounded?
+- [ ] Is there persistent slogan/philosophy/end-of-feed copy? If yes, remove it.
+- [ ] Are errors/status shown only when actionable?
+- [ ] Does visual styling still follow the warm, restrained Grok baseline?
+- [ ] Can the user decide whether to open the original site within a few seconds?
+
